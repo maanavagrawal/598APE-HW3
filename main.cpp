@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
+#include<omp.h>
 
 #include <sys/time.h>
 
@@ -40,11 +41,12 @@ double dt;
 double G;
 
 Planet* next(Planet* planets) {
-   Planet* nextplanets = (Planet*)malloc(sizeof(Planet) * nplanets);
+   Planet* nextplanets = (Planet*)aligned_alloc(32, sizeof(Planet) * nplanets);
+   #pragma omp parallel for
    for (int i=0; i<nplanets; i++) {
       nextplanets[i] = planets[i];
    }
-
+   #pragma omp parallel for schedule(dynamic)
    for (int i=0; i<nplanets; i++) {
       for (int j=0; j<nplanets; j++) {
          double dx = planets[j].x - planets[i].x;
@@ -72,7 +74,7 @@ int main(int argc, const char** argv){
    dt = 0.001;
    G = 6.6743;
 
-   Planet* planets = (Planet*)malloc(sizeof(Planet) * nplanets);
+   Planet* planets = (Planet*)aligned_alloc(32, sizeof(Planet) * nplanets);
    for (int i=0; i<nplanets; i++) {
       planets[i].mass = randomDouble() * 10 + 0.2;
       planets[i].x = ( randomDouble() - 0.5 ) * 100 * pow(1 + nplanets, 0.4);
