@@ -46,23 +46,29 @@ Planet* next(Planet* planets) {
    for (int i=0; i<nplanets; i++) {
       nextplanets[i] = planets[i];
    }
+
    #pragma omp parallel for schedule(dynamic)
    for (int i=0; i<nplanets; i++) {
+      double vx = nextplanets[i].vx;
+      double vy = nextplanets[i].vy;
       for (int j=0; j<nplanets; j++) {
          double dx = planets[j].x - planets[i].x;
          double dy = planets[j].y - planets[i].y;
          double distSqr = dx*dx + dy*dy + 0.0001;
          double invDist = planets[i].mass * planets[j].mass / sqrt(distSqr);
          double invDist3 = invDist * invDist * invDist;
-         nextplanets[i].vx += dt * dx * invDist3;
-         nextplanets[i].vy += dt * dy * invDist3;
+         vx += dt * dx * invDist3;
+         vy += dt * dy * invDist3;
       }
-      nextplanets[i].x += dt * nextplanets[i].vx;
-      nextplanets[i].y += dt * nextplanets[i].vy;
+      nextplanets[i].x += dt * vx;
+      nextplanets[i].y += dt * vy;
+      nextplanets[i].vx = vx;
+      nextplanets[i].vy = vy;
    }
    free(planets);
    return nextplanets;
 }
+
 
 int main(int argc, const char** argv){
    if (argc < 2) {
