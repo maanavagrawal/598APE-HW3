@@ -55,7 +55,8 @@ Planet* next(Planet* planets) {
             double dx = planets[j].x - planets[i].x;
             double dy = planets[j].y - planets[i].y;
             double distSqr = dx*dx + dy*dy + 0.0001;
-            double invDist = planets[i].mass * planets[j].mass / sqrt(distSqr);
+            double recip =  1.0 / sqrt(distSqr);
+            double invDist = planets[i].mass * planets[j].mass * recip;
             double invDist3 = invDist * invDist * invDist;
             vx += dt * dx * invDist3;
             vy += dt * dy * invDist3;
